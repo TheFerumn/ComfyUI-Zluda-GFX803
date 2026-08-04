@@ -74,6 +74,11 @@ class ImageUpscaleWithModel(io.ComfyNode):
         memory_required += image.nelement() * image.element_size()
         model_management.load_models_gpu([upscale_model.patcher], memory_required=memory_required)
 
+        model = upscale_model.model
+        if next(model.parameters()).device != device:
+            print(f"[Upscaler FIX] Moving upscale model from {next(model.parameters()).device} to {device}")
+            model.to(device)
+
         in_img = image.movedim(-1,-3).to(device)
 
         tile = 512
